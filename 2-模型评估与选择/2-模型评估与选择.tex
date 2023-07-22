@@ -403,6 +403,93 @@ $5 \times 2$ 交叉验证是做 5 次 2 折交叉验证，在每次 2 折交叉�
 \end{equation*}
 服从自由度为 $5$ 的 $t$ 分布，其双边检验的临界值 $t_{\alpha / 2, 5}$ 当 $\alpha = 0.05$ 时为 $2.5706$，当 $\alpha - 0.1$ 时为 $2.0150$。
 
+\subsection{McNemar检验}
 
+McNemar 主要用于二分类问题，与成对 $t$ 检验一样也是用于比较两个学习器性能的大小。主要思想是：若学习器的性能相同，则 $A$ 预测正确 $B$ 预测错误数应等于 $B$ 预测错误 $A$ 预测正确数，即 $e_{01} = e_{10}$，且 $|e_{01} - e_{10}|$ 服从 $N(1, e_{01} + e_{10})$ 的正态分布。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/2-10-两学习器分类列联表.png}
+    \caption{两学习器分类列联表}
+    \label{fig:两学习器分类列联表}
+\end{figure}
+
+因此，如下变量服从自由度为 $1$ 的 $\chi^2$ 分布（卡方分布），其服从标准正态分布 $N(0, 1)$ 的随机变量的平方和。下式只有一个变量，故自由度为 $1$，检验的方法同上：做出假设 $\Rightarrow$ 求出满足显著度的临界点 $\Rightarrow$ 给出拒绝域 $\Rightarrow$ 验证假设。
+
+\begin{equation*}
+    \tau_{\chi^2} = \frac{(|e_{01} - e_{10}| - 1)^2}{e_{01} - e_{10}}
+\end{equation*}
+
+自由度为 $1$ 的 $\chi^2$ 检验的临界值当 $\alpha = 0.05$ 时为 $3.8415$，$\alpha = 0.1$ 时为 $2.7055$。
+
+\subsection{Friedman 检验与 Nemenyi 后续检验}
+
+上述的检验方法都只能在一个数据集上比较两个算法的性能，有时我们需要在多组数据集上比较多个算法。Friedman 检验的基本思想是在同一组数据集上，根据测试结果（如测试错误率）对学习器的性能进行排序，赋予序值 $1, 2, \cdots$，相同则平分序值，如下图所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/2-11-算法比较序值表.png}
+    \caption{算法比较序值表}
+    \label{fig:算法比较序值表}
+\end{figure}
+
+若学习器的性能相同，则它们的平均序值应该相同，且第 $i$ 算法的平均序值 $r_i$ 服从正态分布 $\displaystyle N(\frac{k + 1}{2}, \frac{(k^2 - 1)}{12})$，则有：
+\begin{equation*}
+    \begin{array}{*{20}{l}}
+        {{\tau _{{\chi ^2}}}}&{ = \displaystyle \frac{{k - 1}}{k} \cdot \frac{{12N}}{{{k^2} - 1}}\sum\limits_{i = 1}^k {{{\left({r_i} - \frac{{k + 1}}{2}\right)}^2}} }\\
+        {}&{ =  \displaystyle \frac{{12N}}{{k(k + 1)}}\left( {\sum\limits_{i = 1}^k {r_i^2}  - \frac{{k{{(k + 1)}^2}}}{4}} \right)}
+    \end{array}
+\end{equation*}
+
+当 $k$ 和 $N$ 都较大时，服从自由度为 $k - 1$ 的 $\chi^2$ 分布。
+
+然而，上述这样的“原始 Friedman 检验”过于保守，现在通常使用变量：
+\begin{equation*}
+    \tau_F = \frac{(N - 1) \tau_{\chi^2}}{N(k - 1) - \tau_{\chi^2}}
+\end{equation*}
+
+其中 $\tau_{F}$ 服从自由度为 $k - 1$ 和 $(k - 1)(N - 1)$ 的 $F$ 分布。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/2-12-F检验的常用临界值.png}
+    \caption{F检验的常用临界值}
+    \label{fig:F检验的常用临界值}
+\end{figure}
+
+若“H0：所有算法的性能相同”这个假设被拒绝，则需要进行“后续检验”（post-hoc test），来得到具体的算法之间的差异。常用的有 Nemenyi 后续检验。
+
+Nemenyi 检验计算出平均序值差别的临界值域：
+\begin{equation*}
+    CD = q_{\alpha} \sqrt{\frac{k(k + 1)}{6N}}
+\end{equation*}
+
+若两个算法的平均序值之差超过了临界值域 $CD$，则以相应的置信度拒绝“两个算法性能相同”这一假设。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/2-13-Nemenyi检验中常用的值.png}
+    \caption{Nemenyi检验中常用的 $q_{\alpha}$ 值}
+    \label{fig:Nemenyi检验中常用的值}
+\end{figure}
+
+\section{偏差与方差}
+
+“偏差-方差分解”（bias-variance decomposition）是解释学习算法泛化性能的一种重要工具。在学习算法中，偏差指的是预测的期望值与真实值的偏差，方差则是每一次预测值与预测值得到的期望之间的差均方。实际上，偏差体现了学习器预测的准确度，而方差体现了学习器预测的稳定性，通过对泛化误差进行分解，可以得到：
+
+\begin{enumerate}[\hspace*{2em} i.]
+    \item 期望泛化误差 $=$ 方差 $+$ 偏差与方差
+    \item 偏差刻画学习器的拟合能力
+    \item 方差体现学习器的稳定性
+\end{enumerate}
+
+易知：方差和偏差具有矛盾性，这就是常说的偏差-方差窘境（bias-variance dilamma），随着训练程度的提升，期望预测值与真实值之间的差异越来越小，即偏差越来越小，但是另一方面，随着训练程度加大，学习算法对数据集的波动越来越敏感，方差值越来越大。换句话说：在欠拟合时，偏差主导泛化误差，而训练到一定程度后，偏差越来越小，方差主导了泛化误差。因此训练也不要贪杯，适度辄止。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/2-14-泛化误差与偏差、方差的关系示意图.png}
+    \caption{泛化误差与偏差、方差的关系示意图}
+    \label{fig:泛化误差与偏差、方差的关系示意图}
+\end{figure}
 
 \end{document}
