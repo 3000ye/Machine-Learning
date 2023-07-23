@@ -144,6 +144,19 @@
         {x_m^T}&1
     \end{array}} \right]
 \end{equation*}
+\begin{equation*}
+    X \cdot \hat w = \left[ {\begin{array}{*{20}{c}}
+        {{w_1}{x_{11}} + {w_2}{x_{12}} +  \cdots  + {w_d}{x_{1d}} + b}\\
+        {{w_1}{x_{21}} + {w_2}{x_{22}} +  \cdots  + {w_d}{x_{2d}} + b}\\
+         \cdots \\
+        {{w_1}{x_{m1}} + {w_2}{x_{m2}} +  \cdots  + {w_d}{x_{md}} + b}
+        \end{array}} \right] = \left[ {\begin{array}{*{20}{c}}
+        {f\left( {{x_1}} \right)}\\
+        {f\left( {{x_2}} \right)}\\
+         \cdots \\
+        {f\left( {{x_m}} \right)}
+    \end{array}} \right]
+\end{equation*}
 再把标记也写成向量形式 $y = (y_1; y_2; \cdots; y_m)$，则有：
 \begin{equation*}
     \hat{w}^* = \mathop {\arg \min }\limits_{\hat w} {\left( {y - X\hat w} \right)^T}\left( {y - X\hat w} \right)
@@ -153,7 +166,27 @@
 \begin{equation*}
     \frac{{\partial {E_{\hat w}}}}{{\partial \hat w}} = 2{X^T}(X\hat w - y)
 \end{equation*}
-令上式为零可得 $\hat{w}$ 最优解的闭式解
+令上式为零可得 $\hat{w}$ 最优解的闭式解，但由于涉及矩阵逆的计算，比单变量情形要复杂一些，下面做一个简单讨论：
+
+当 $X^TX$ 为满秩矩阵（full-rank matrix）或正定矩阵（positive definite matrix）时，即矩阵行列式不为零时，令上式为零得到：
+\begin{equation*}
+    \hat{w}^* = (X^TX)^{-1} X^T y
+\end{equation*}
+其中 $(X^TX)^{-1}$ 是矩阵 $(X^TX)$ 的逆矩阵。令 $\hat{x}_i = (x_i, 1)$，则最终学得的多元线性回归模型为：
+\begin{equation*}
+    f(\hat{x}_i) = \hat{x}_i^T (X^TX)^{-1} X^Ty
+\end{equation*}
+
+对于非满秩矩阵，我们不进行深入。
+
+另一方面，有时候原始的线性回归并不能满足需求。例如：$y$ 并不是线性变化，而是指数变化。此时我们可以采用线性模型来逼近 $y$ 的衍生物，例如 $\ln y$，如下图所示。这就是“对数线性回归”（log-linear regression），它实际上是在试图让 $e^{w^Tx +b}$ 逼近 $y$。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/3-1-对数线性回归示意图.png}
+    \caption{对数线性回归示意图}
+    \label{fig:对数线性回归示意图}
+\end{figure}
 
 
 
