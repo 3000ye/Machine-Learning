@@ -1,0 +1,64 @@
+% 页面设置
+\documentclass[12pt, a4paper]{article} % 字号：12，纸张：A4
+\usepackage[top=2.54cm, bottom=2.54cm, left=3.18cm,right=3.18cm]{geometry} % 页边距设置
+% 字体设置
+\usepackage[UTF8]{ctex}
+\usepackage{fontspec} % 设置字体
+%\setCJKmainfont{SimSun}[AutoFakeBold=true, BoldFont={SimHei}, ItalicFont={KaiTi}] % 正文字体
+%\setCJKsansfont[AutoFakeBold=3]{KaiTi} % 无衬线字体
+%\setCJKmonofont[AutoFakeBold=3]{SimHei} % 等宽字体
+\setmainfont{Times New Roman} % 设置主字体为新罗马体
+% 文本设置
+\usepackage{enumerate} % 支持小标题编号
+\linespread{1.5} % 行间距1.5倍
+\usepackage{indentfirst}%首段缩进
+\setlength{\parindent}{2em} % 首行缩进两字符
+\usepackage[hidelinks]{hyperref} % 目录添加超链接
+\usepackage{zhnumber} % 章节标题中文显示
+\usepackage[cmyk]{xcolor} % 文字彩色显示
+% 数学支持
+\usepackage{amsmath} % 数学公式支持
+\usepackage{amssymb} % 数学符号支持
+\usepackage{bm} % 公式加粗
+\usepackage{mathrsfs} % 花体字母
+\usepackage{yhmath} % 更多的数学符号
+% 图片设置
+\usepackage{caption} % 插入图片标题
+\usepackage{float} % 控制图片位置
+\usepackage{subfigure} % 图片并排
+\usepackage{booktabs} % 插入表格
+% 表格设置
+\usepackage{multirow} % 表格自动换行
+\usepackage{bigstrut} % 表格间距
+\usepackage{rotating} % 表格旋转
+\usepackage{tabularx} % 表格宽度
+\usepackage{colortbl} % 表格颜色
+\usepackage{graphicx} % 表格自动宽度
+
+\title{第五章 \ \ \ 神经网络} % 文章标题
+\author{Castor Ye} % 文章作者
+\date{} % 文章时间
+
+\begin{document} % 文档从这里开始。
+\maketitle % 按照预定的模板把上面那些信息排好。
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{example}{例}[section]
+\newtheorem{solution}{题解}
+\newtheorem{algorithm}{算法}
+\newtheorem{axiom}{公理}
+\newtheorem{property}{性质}
+\newtheorem{proposition}{命题}
+\newtheorem{lemma}{引理}
+\newtheorem{corollary}{推论}[section]
+\newtheorem{remark}{注解}
+\newtheorem{condition}{条件}
+\newtheorem{conclusion}{结论}
+\newtheorem{assumption}{假设}
+\renewcommand{\figurename}{图} % 将图片序号改为图
+\renewcommand{\tablename}{表} % 将表格序号改为表
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 文章内容从此开始
+
+
+\end{document}
