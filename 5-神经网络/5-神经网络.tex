@@ -83,8 +83,6 @@
 
 把许多个这样的神经元按一定的层次结构连接起来，就得到了神经网络。
 
-
-
 \section{感知机与多层网络}
 
 感知机（Perceptron）由两层神经元组成，输入层接收外界输入信号后传递给输出层，输出层是 M-P 神经元。感知机能容易地实现逻辑与、或、非运算，注意到 $\displaystyle y = f( \sum_i w_i x_i - \theta)$，假定 $f$ 是阶跃函数，则有：
@@ -173,9 +171,122 @@ $BP$ 算法基于梯度下降（gradient descent）策略，以目标的负梯�
 \begin{equation*}
     \Delta w_{hj} = - \eta \frac{\partial E_k}{\partial w_{hj}}
 \end{equation*}
+注意到 $w_{hj}$ 先影响到第 $j$ 个输出层神经元的输入值 $\beta_{j}$，再影响到其输出值 $\hat{y}_j^k$，然后影响到 $E_k$，有：
+\begin{equation*}
+    \frac{\partial E_k}{\partial w_{hj}} = \frac{\partial E_k}{\partial \hat{y}_j^k} \cdot \frac{\partial \hat{y}_j^k}{\partial \beta_{j}} \cdot \frac{\partial \beta_j}{\partial w_{hj}}
+\end{equation*}
 
+根据 $\beta_{j}$ 的定义，显然有：
+\begin{equation*}
+    \frac{\partial \beta{j}}{\partial w_{hj}} = b_h
+\end{equation*}
 
+同时，Sigmoid 函数有一个很好的性质：
+\begin{equation*}
+    f^{\prime} (x) = f(x) (1 - f(x))
+\end{equation*}
 
+根据前式则有：
+\begin{equation*}
+    \begin{array}{*{20}{l}}
+        {g_j}&{\displaystyle = - \frac{\partial E_k}{\partial \hat{y}_j^k} \cdot \frac{\partial \hat{y}_j^k}{\partial \beta_j} }\\
+        {}&{ = - (\hat{y}_j^k - y_j^k) f^{\prime} (\beta_j - \theta_j) } \\
+        {}&{= \hat{y}_j^k (1 - \hat{y}_j^k) (y_j^k - \hat{y}_j^k)}
+    \end{array}
+\end{equation*}
 
+代入前式得到 $BP$ 算法中关于 $w_{hj}$ 的更新公式：
+\begin{equation*}
+    \Delta w_{hj} = \eta g_j b_h
+\end{equation*}
+类似可得：
+\begin{equation*}
+    \Delta \theta_{j} = - \eta g_j, \ \ \ \Delta v_{ih} = \eta e_h x_i, \ \ \ \Delta \gamma_h = - \eta e_h
+\end{equation*}
+则有：
+\begin{equation*}
+    \begin{array}{*{20}{l}}
+        {e_h}&{\displaystyle  = - \frac{\partial E_k}{\partial b_h} \cdot \frac{\partial b_h}{\partial \alpha_h} }\\
+        {}&{\displaystyle  = - \sum_{j = 1}^{l} \frac{\partial E_k}{\partial \beta_j} \cdot \frac{\partial \beta_j}{\partial b_h} f^{\prime} (\alpha_h - \gamma_h)} \\
+        {}&{\displaystyle  = \sum_{j = 1}^{l} w_{hj} g_{j} f^{\prime} (\alpha_h - \gamma_h) } \\
+        {}&{\displaystyle  = b_h (1 - b_h) \sum_{j = 1}^{l} w_{hj} g_{j} }
+    \end{array}
+\end{equation*}
+
+学习率 $\eta \in (0, 1)$ 控制这算法每一轮迭代中的更新步长，若太大则容易振荡，太小则收敛速度又会过慢。
+
+下图给出了 $BP$ 算法的工作流程。对每个训练样例，$BP$ 算法执行以下操作：先将输入示例提供给输入层神经元，然后逐层将信号前传，知道产生输出层的结果；然后计算输出层的误差，再将误差逆向传播至隐层神经元，最后根据隐层神经元的误差来对连接权和阈值进行调整。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/5-7-误差逆传播算法.png}
+    \caption{误差逆传播算法}
+    \label{fig:误差逆传播算法}
+\end{figure}
+
+需注意的是，$BP$ 算法的目标是要最小化训练集 $D$ 上的积累误差：
+\begin{equation*}
+    E = \frac{1}{m} \sum_{k = 1}^{m} E_k
+\end{equation*}
+
+如果基于累积误差最小化的更新规则，则得到了累积误差逆传播算法（accumulated error backpropagation），即每次读取全部的数据集一遍，进行一轮学习，从而基于当前的累积误差进行权值调整，因此参数更新的频率相比标准BP算法低了很多，但在很多任务中，尤其是在数据量很大的时候，往往标准BP算法会获得较好的结果。另外对于如何设置隐层神经元个数的问题，至今仍然没有好的解决方案，常使用“试错法”进行调整。
+
+前面提到，BP神经网络强大的学习能力常常容易造成过拟合问题，有以下两种策略来缓解BP网络的过拟合问题：
+
+\begin{enumerate}[\hspace*{2em} i.]
+    \item 早停：将数据分为训练集与测试集，训练集用于学习，测试集用于评估性能，若在训练过程中，训练集的累积误差降低，而测试集的累积误差升高，则停止训练。
+    \item 引入正则化（regularization）：基本思想是在累积误差函数中增加一个用于描述网络复杂度的部分，例如所有权值与阈值的平方和，其中λ∈（0,1）用于对累积经验误差与网络复杂度这两项进行折中，常通过交叉验证法来估计。
+    \begin{equation*}
+        E = \lambda \frac{1}{m} \sum_{k = 1}{m} E_k + (1 - \lambda) \sum_{i} w_i^2
+    \end{equation*}
+\end{enumerate}
+
+\section{全局最小与局部极小}
+
+模型学习的过程实质上就是一个寻找最优参数的过程，例如BP算法试图通过最速下降来寻找使得累积经验误差最小的权值与阈值，在谈到最优时，一般会提到局部极小（local minimum）和全局最小（global minimum）。
+
+\begin{enumerate}[\hspace*{2em} i.]
+    \item 局部极小解：参数空间中的某个点，其邻域点的误差函数值均不小于该点的误差函数值。
+    \item 全局最小解：参数空间中的某个点，所有其他点的误差函数值均不小于该点的误差函数值。
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/5-8-全局最小与局部最小.png}
+    \caption{全局最小与局部最小}
+    \label{fig:全局最小与局部最小}
+\end{figure}
+
+要成为局部极小点，只要满足该点在参数空间中的梯度为零。局部极小可以有多个，而全局最小只有一个。全局最小一定是局部极小，但局部最小却不一定是全局最小。显然在很多机器学习算法中，都试图找到目标函数的全局最小。梯度下降法的主要思想就是沿着负梯度方向去搜索最优解，负梯度方向是函数值下降最快的方向，若迭代到某处的梯度为0，则表示达到一个局部最小，参数更新停止。因此在现实任务中，通常使用以下策略尽可能地去接近全局最小。
+
+\begin{enumerate}[\hspace*{2em} i.]
+    \item 以多组不同参数值初始化多个神经网络，按标准方法训练，迭代停止后，取其中误差最小的解作为最终参数。
+    \item 使用“模拟退火”技术，这里不做具体介绍。
+    \item 使用随机梯度下降，即在计算梯度时加入了随机因素，使得在局部最小时，计算的梯度仍可能不为0，从而迭代可以继续进行。
+\end{enumerate}
+
+\section{深度学习}
+
+理论上，参数越多，模型复杂度就越高，容量（capability）就越大，从而能完成更复杂的学习任务。深度学习（deep learning）正是一种极其复杂而强大的模型。
+
+怎么增大模型复杂度呢？两个办法，一是增加隐层的数目，二是增加隐层神经元的数目。前者更有效一些，因为它不仅增加了功能神经元的数量，还增加了激活函数嵌套的层数。但是对于多隐层神经网络，经典算法如标准BP算法往往会在误差逆传播时发散（diverge），无法收敛达到稳定状态。
+
+那要怎么有效地训练多隐层神经网络呢？一般来说有以下两种方法：
+
+\begin{enumerate}[\hspace*{2em} i.]
+    \item 无监督逐层训练（unsupervised layer-wise training）：每次训练一层隐节点，把上一层隐节点的输出当作输入来训练，本层隐结点训练好后，输出再作为下一层的输入来训练，这称为预训练（pre-training）。全部预训练完成后，再对整个网络进行微调（fine-tuning）训练。一个典型例子就是深度信念网络（deep belief network，简称DBN）。这种做法其实可以视为把大量的参数进行分组，先找出每组较好的设置，再基于这些局部最优的结果来训练全局最优。
+    \item 权共享（weight sharing）：令同一层神经元使用完全相同的连接权，典型的例子是卷积神经网络（Convolutional Neural Network，简称CNN）。这样做可以大大减少需要训练的参数数目。
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/5-9-卷积神经网络用于手写数字识别.png}
+    \caption{卷积神经网络用于手写数字识别}
+    \label{fig:卷积神经网络用于手写数字识别}
+\end{figure}
+
+深度学习可以理解为一种特征学习（feature learning）或者表示学习（representation learning），无论是DBN还是CNN，都是通过多个隐层来把与输出目标联系不大的初始输入转化为与输出目标更加密切的表示，使原来只通过单层映射难以完成的任务变为可能。即通过多层处理，逐渐将初始的“低层”特征表示转化为“高层”特征表示，从而使得最后可以用简单的模型来完成复杂的学习任务。
+
+传统任务中，样本的特征需要人类专家来设计，这称为特征工程（feature engineering）。特征好坏对泛化性能有至关重要的影响。而深度学习为全自动数据分析带来了可能，可以自动产生更好的特征。
 
 \end{document}
